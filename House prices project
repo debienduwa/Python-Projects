@@ -1,0 +1,149 @@
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+file_path = (r"C:\Users\PC\Downloads\house_prices_dataset.csv") 
+data = pd.read_csv(file_path)
+
+# Display basic information about the dataset
+print(data.info())
+print(data.head())
+
+# Check for missing values
+print("\nMissing Values:\n", data.isnull().sum())
+
+# Handle missing values
+# Apply mean imputation only to numeric columns
+numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
+data[numeric_columns] = data[numeric_columns].fillna(data[numeric_columns].mean())
+
+# Drop irrelevant columns (if any)
+# Example: Drop ID columns or columns not relevant to prediction
+if 'House ID' in data.columns:
+    data.drop(columns=['House ID'], inplace=True)
+
+# Handle outliers (optional visualization)
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=data[numeric_columns])
+plt.title("Boxplot to Detect Outliers")
+plt.show()
+
+# Convert categorical columns to appropriate types (if needed)
+categorical_columns = data.select_dtypes(include=['object']).columns
+print("\nCategorical Columns:", categorical_columns)
+# Example: Encode categorical variables as necessary
+# For simple encoding: pd.get_dummies(data, columns=['Location'], drop_first=True)
+
+# Display the cleaned dataset
+print("\nCleaned Dataset Preview:\n", data.head())
+
+# Group project
+#week 3 
+import csv
+with open('house_prices_dataset.csv') as csvfile:
+    m=list(csv.reader(csvfile))
+print(m[:3])
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the processed data
+data = pd.read_csv('house_prices_dataset.csv')  
+# creating new features
+# Create 'Price per sq. ft.'
+data['Price_per_sqft'] = data['Price (USD)'] / data['Size (sq. ft.)']
+# Create an interaction term: 'Rooms x Age'
+data['Rooms_x_Age'] = data['Number of Rooms'] * (2024 - data['Year Built'])
+
+print(data[['Price_per_sqft', 'Rooms_x_Age']].head())
+
+# correlation analysis
+# Select numeric columns only
+numeric_data = data.select_dtypes(include=[np.number])
+
+# Compute the correlation matrix
+correlation_matrix = numeric_data.corr()
+
+# Visualize the correlation matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Correlation Matrix')
+plt.show()
+# Variance inflation factor
+# Select numeric columns for VIF calculation
+numeric_data = data.select_dtypes(include=[np.number])
+
+# Calculate VIF for each feature
+def calculate_vif(df):
+    vif_data = pd.DataFrame()
+    vif_data['Feature'] = df.columns
+    vif_data['VIF'] = [variance_inflation_factor(df.values, i) for i in range(df.shape[1])]
+    return vif_data
+
+vif_data = calculate_vif(numeric_data)
+print(vif_data)
+
+# Drop features with VIF > 10
+relevant_features = vif_data[vif_data['VIF'] <= 10]['Feature'].tolist()
+data = data[relevant_features]
+
+
+# Week 4: Import Libraries for Model Building
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Split Data
+X = features  # Independent variables
+y = house_prices_df['Price (USD)']  # Target variable
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Linear Regression Model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict on Test Data
+y_pred = model.predict(X_test)
+
+# Evaluate Model Performance
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"Mean Absolute Error (MAE): {mae}")
+print(f"Mean Squared Error (MSE): {mse}")
+print(f"R-squared (R2): {r2}")
+
+
+# Week 5: Import Libraries for Model Evaluation and Reporting
+import matplotlib.pyplot as plt
+
+# Residual Analysis
+residuals = y_test - y_pred
+plt.scatter(y_test, residuals)
+plt.axhline(y=0, color='red', linestyle='--')
+plt.xlabel('Actual Prices')
+plt.ylabel('Residuals')
+plt.title('Residual Analysis')
+plt.show()
+
+# Reporting - Summary
+print("Model Performance Metrics:")
+print(f"MAE: {mae}")
+print(f"MSE: {mse}")
+print(f"R-squared: {r2}")
+print("\nRecommendations:")
+print("- Consider adding more features like neighborhood data.")
+print("- Explore advanced models (e.g., Decision Trees, Random Forest).")
+
